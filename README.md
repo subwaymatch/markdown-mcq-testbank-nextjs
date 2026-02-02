@@ -20,10 +20,10 @@ cp .env.example .env
 2. Start Postgres locally (Prisma local dev guide):
 
 ```bash
-docker compose up -d
+npx prisma dev
 ```
 
-3. Generate Prisma client and run migrations:
+3. In a separate terminal, generate the Prisma client and run migrations:
 
 ```bash
 npx prisma generate
@@ -49,6 +49,7 @@ Use a single markdown block:
 - [ ] Incorrect option :: Explanation shown after answer
 
 ---
+
 General explanation shown after submission.
 ```
 

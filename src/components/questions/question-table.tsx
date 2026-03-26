@@ -154,6 +154,7 @@ export function QuestionTable({ questions }: QuestionTableProps) {
                 <TableHead className="hidden md:table-cell">Tags</TableHead>
                 <TableHead className="hidden sm:table-cell">Choices</TableHead>
                 <TableHead className="hidden sm:table-cell">Type</TableHead>
+                <TableHead className="hidden sm:table-cell">Visibility</TableHead>
                 <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
@@ -200,6 +201,14 @@ export function QuestionTable({ questions }: QuestionTableProps) {
                       {question.allow_multiple_answers ? "Multi" : "Single"}
                     </Badge>
                   </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <Badge
+                      variant={question.visibility === "public" ? "default" : "outline"}
+                      className="text-xs"
+                    >
+                      {question.visibility === "public" ? "Public" : "Private"}
+                    </Badge>
+                  </TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger
@@ -220,6 +229,11 @@ export function QuestionTable({ questions }: QuestionTableProps) {
                         </svg>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          render={<Link href={`/q/${question.id}`} />}
+                        >
+                          View
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                           render={<Link href={`/questions/${question.id}/edit`} />}
                         >

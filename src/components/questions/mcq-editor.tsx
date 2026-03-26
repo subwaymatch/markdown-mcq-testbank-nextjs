@@ -8,6 +8,7 @@ import { McqPreview } from "./mcq-preview";
 import { parseMcqMarkdown } from "@/lib/mcq/parser";
 import { validateMcq } from "@/lib/mcq/validator";
 import { toast } from "sonner";
+import type { QuestionVisibility } from "@/types/mcq";
 
 const STARTER_TEMPLATE = `---
 title: Your Question Title
@@ -30,12 +31,14 @@ Optional overall explanation goes here after the choices.
 interface McqEditorProps {
   initialMarkdown?: string;
   questionId?: string;
+  initialVisibility?: QuestionVisibility;
 }
 
-export function McqEditor({ initialMarkdown, questionId }: McqEditorProps) {
+export function McqEditor({ initialMarkdown, questionId, initialVisibility = "private" }: McqEditorProps) {
   const [markdown, setMarkdown] = useState(
     initialMarkdown || STARTER_TEMPLATE
   );
+  const [visibility, setVisibility] = useState<QuestionVisibility>(initialVisibility);
   const [saving, setSaving] = useState(false);
   const [debouncedMarkdown, setDebouncedMarkdown] = useState(markdown);
   const router = useRouter();
@@ -69,7 +72,7 @@ export function McqEditor({ initialMarkdown, questionId }: McqEditorProps) {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ raw_markdown: markdown }),
+        body: JSON.stringify({ raw_markdown: markdown, visibility }),
       });
 
       if (!res.ok) {
@@ -85,7 +88,7 @@ export function McqEditor({ initialMarkdown, questionId }: McqEditorProps) {
     } finally {
       setSaving(false);
     }
-  }, [markdown, questionId, router]);
+  }, [markdown, visibility, questionId, router]);
 
   // Handle tab key in textarea
   const handleKeyDown = useCallback(
@@ -126,9 +129,19 @@ export function McqEditor({ initialMarkdown, questionId }: McqEditorProps) {
             {questionId ? "Edit Question" : "New Question"}
           </h1>
         </div>
-        <Button onClick={handleSave} disabled={saving} size="sm">
-          {saving ? "Saving..." : "Save"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <select
+            value={visibility}
+            onChange={(e) => setVisibility(e.target.value as QuestionVisibility)}
+            className="h-8 rounded-md border border-input bg-background px-2 text-sm"
+          >
+            <option value="private">Private</option>
+            <option value="public">Public</option>
+          </select>
+          <Button onClick={handleSave} disabled={saving} size="sm">
+            {saving ? "Saving..." : "Save"}
+          </Button>
+        </div>
       </div>
 
       {/* Mobile: Tabs / Desktop: Split pane */}

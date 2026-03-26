@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { parseMcqMarkdown } from "@/lib/mcq/parser";
-import { validateMcq } from "@/lib/mcq/validator";
-import { questionSaveSchema } from "@/lib/validations/question";
+import { questionSetSaveSchema } from "@/lib/validations/question-set";
+import { generateSlug } from "@/lib/mcq/slug";
 
 export async function GET(
   _request: Request,
@@ -19,8 +18,8 @@ export async function GET(
   }
 
   const { data, error } = await supabase
-    .from("questions")
-    .select("*, choices(*)")
+    .from("question_sets")
+    .select("*, question_set_items(*, questions(*, choices(*)))")
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
@@ -48,7 +47,7 @@ export async function PUT(
 
   // Verify ownership
   const { data: existing } = await supabase
-    .from("questions")
+    .from("question_sets")
     .select("id")
     .eq("id", id)
     .eq("user_id", user.id)
@@ -59,7 +58,7 @@ export async function PUT(
   }
 
   const body = await request.json();
-  const parsed = questionSaveSchema.safeParse(body);
+  const parsed = questionSetSaveSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       { error: parsed.error.issues[0].message },
@@ -67,21 +66,13 @@ export async function PUT(
     );
   }
 
-  const mcq = parseMcqMarkdown(parsed.data.raw_markdown);
-  const validation = validateMcq(mcq);
-  if (!validation.valid) {
-    return NextResponse.json(
-      { error: validation.errors.join(", ") },
-      { status: 400 }
-    );
-  }
-
-  // Handle slug uniqueness (exclude current question)
-  let slug = mcq.slug;
+  // Handle slug uniqueness
+  const baseSlug = generateSlug(parsed.data.title);
+  let slug = baseSlug;
   let suffix = 1;
   while (true) {
     const { data: conflict } = await supabase
-      .from("questions")
+      .from("question_sets")
       .select("id")
       .eq("user_id", user.id)
       .eq("slug", slug)
@@ -90,53 +81,43 @@ export async function PUT(
 
     if (!conflict) break;
     suffix++;
-    slug = `${mcq.slug}-${suffix}`;
+    slug = `${baseSlug}-${suffix}`;
   }
 
-  // Update question
-  const { error: qError } = await supabase
-    .from("questions")
+  // Update question set
+  const { error: qsError } = await supabase
+    .from("question_sets")
     .update({
-      title: mcq.title,
+      title: parsed.data.title,
       slug,
-      question_body: mcq.questionBody,
-      allow_multiple_answers: mcq.allowMultipleAnswers,
-      tags: mcq.tags,
-      overall_explanation: mcq.overallExplanation,
-      raw_markdown: parsed.data.raw_markdown,
-      visibility: parsed.data.visibility,
+      description: parsed.data.description || null,
     })
     .eq("id", id);
 
-  if (qError) {
-    return NextResponse.json({ error: qError.message }, { status: 500 });
+  if (qsError) {
+    return NextResponse.json({ error: qsError.message }, { status: 500 });
   }
 
-  // Replace choices: delete old, insert new
-  await supabase.from("choices").delete().eq("question_id", id);
+  // Replace items
+  await supabase.from("question_set_items").delete().eq("question_set_id", id);
 
-  if (mcq.choices.length > 0) {
-    const choicesData = mcq.choices.map((c, i) => ({
-      question_id: id,
-      choice_text: c.text,
-      is_correct: c.isCorrect,
-      explanation: c.explanation,
-      sort_order: i,
-    }));
+  const items = parsed.data.question_ids.map((qId: string, i: number) => ({
+    question_set_id: id,
+    question_id: qId,
+    sort_order: i,
+  }));
 
-    const { error: cError } = await supabase
-      .from("choices")
-      .insert(choicesData);
+  const { error: itemsError } = await supabase
+    .from("question_set_items")
+    .insert(items);
 
-    if (cError) {
-      return NextResponse.json({ error: cError.message }, { status: 500 });
-    }
+  if (itemsError) {
+    return NextResponse.json({ error: itemsError.message }, { status: 500 });
   }
 
-  // Fetch updated
   const { data: complete } = await supabase
-    .from("questions")
-    .select("*, choices(*)")
+    .from("question_sets")
+    .select("*, question_set_items(*, questions(id, title, slug, tags))")
     .eq("id", id)
     .single();
 
@@ -158,7 +139,7 @@ export async function DELETE(
   }
 
   const { error } = await supabase
-    .from("questions")
+    .from("question_sets")
     .delete()
     .eq("id", id)
     .eq("user_id", user.id);

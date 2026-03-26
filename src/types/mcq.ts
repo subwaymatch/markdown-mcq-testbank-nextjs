@@ -1,3 +1,5 @@
+export type QuestionVisibility = "public" | "private";
+
 export interface Choice {
   id: string;
   question_id: string;
@@ -18,6 +20,7 @@ export interface Question {
   tags: string[];
   overall_explanation: string | null;
   raw_markdown: string;
+  visibility: QuestionVisibility;
   created_at: string;
   updated_at: string;
 }
@@ -67,4 +70,28 @@ export interface McqExportChoice {
   is_correct: boolean;
   explanation: string | null;
   sort_order: number;
+}
+
+export interface QuestionSet {
+  id: string;
+  user_id: string;
+  title: string;
+  slug: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface QuestionSetItem {
+  id: string;
+  question_set_id: string;
+  question_id: string;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface QuestionSetWithQuestions extends QuestionSet {
+  question_set_items: (QuestionSetItem & {
+    questions: QuestionWithChoices;
+  })[];
 }

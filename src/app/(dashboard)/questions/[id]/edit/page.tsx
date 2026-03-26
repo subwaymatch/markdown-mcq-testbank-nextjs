@@ -24,7 +24,11 @@ export default async function EditQuestionPage({
 
   return (
     <div className="h-screen">
-      <McqEditor initialMarkdown={question.raw_markdown} questionId={id} />
+      <McqEditor
+        initialMarkdown={question.raw_markdown}
+        questionId={id}
+        initialVisibility={question.visibility || "private"}
+      />
     </div>
   );
 }

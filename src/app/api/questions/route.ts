@@ -83,6 +83,7 @@ export async function POST(request: Request) {
       tags: mcq.tags,
       overall_explanation: mcq.overallExplanation,
       raw_markdown: parsed.data.raw_markdown,
+      visibility: parsed.data.visibility,
     })
     .select()
     .single();

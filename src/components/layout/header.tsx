@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,9 @@ export function Header() {
   return (
     <header className="border-b">
       <div className="container mx-auto flex items-center justify-between h-14 px-4">
-        <h1 className="text-lg font-bold">MCQ Test Bank</h1>
+        <Link href="/dashboard" className="text-lg font-bold hover:opacity-80">
+          MCQ Test Bank
+        </Link>
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Button variant="ghost" size="sm" onClick={handleSignOut}>

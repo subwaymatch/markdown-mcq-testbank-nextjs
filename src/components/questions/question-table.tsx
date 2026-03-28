@@ -123,7 +123,7 @@ export function QuestionTable({ questions }: QuestionTableProps) {
               Export Selected ({selectedIds.size})
             </Button>
           )}
-          <Button size="sm" render={<Link href="/questions/new" />}>
+          <Button size="sm" nativeButton={false} render={<Link href="/questions/new" />}>
             New Question
           </Button>
         </div>

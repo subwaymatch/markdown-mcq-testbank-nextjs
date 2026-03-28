@@ -14,7 +14,15 @@ interface ChoiceBuilder {
 }
 
 export function parseMcqMarkdown(raw: string): ParsedMcq {
-  const { data: frontmatter, content } = matter(raw);
+  let frontmatter: Record<string, unknown> = {};
+  let content = raw;
+  try {
+    const parsed = matter(raw);
+    frontmatter = parsed.data;
+    content = parsed.content;
+  } catch {
+    // Invalid YAML frontmatter — treat the entire input as content
+  }
 
   const title = (typeof frontmatter.title === "string" && frontmatter.title.trim())
     ? frontmatter.title.trim()

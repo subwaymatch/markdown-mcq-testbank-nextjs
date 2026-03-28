@@ -220,3 +220,13 @@ create policy "Users can delete own question set items"
       where qs.id = question_set_id and qs.user_id = auth.uid()
     )
   );
+
+-- ============================================================
+-- 8. Public permalink access for Question Sets
+-- The /qs/[id] page uses the Supabase service role key
+-- (SUPABASE_SERVICE_ROLE_KEY env var) to bypass RLS and fetch
+-- any question set by ID for public practice sessions.
+--
+-- Make sure to set SUPABASE_SERVICE_ROLE_KEY in your environment.
+-- You can find it in: Supabase Dashboard → Project Settings → API
+-- ============================================================

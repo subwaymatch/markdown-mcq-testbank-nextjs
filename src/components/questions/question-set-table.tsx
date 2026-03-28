@@ -74,7 +74,7 @@ export function QuestionSetTable({ questionSets }: QuestionSetTableProps) {
             Create quiz-like sets from your questions
           </p>
         </div>
-        <Button size="sm" render={<Link href="/question-sets/new" />}>
+        <Button size="sm" nativeButton={false} render={<Link href="/question-sets/new" />}>
           New Question Set
         </Button>
       </div>

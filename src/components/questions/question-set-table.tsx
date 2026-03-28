@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast as sonnerToast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -27,7 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
+import { Link2 } from "lucide-react";
 
 interface QuestionSetRow {
   id: string;
@@ -55,10 +56,10 @@ export function QuestionSetTable({ questionSets }: QuestionSetTableProps) {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete");
-      toast.success("Question set deleted");
+      sonnerToast.success("Question set deleted");
       router.refresh();
     } catch {
-      toast.error("Failed to delete question set");
+      sonnerToast.error("Failed to delete question set");
     } finally {
       setDeleting(false);
       setDeleteId(null);
@@ -90,6 +91,7 @@ export function QuestionSetTable({ questionSets }: QuestionSetTableProps) {
               <TableRow>
                 <TableHead>Title</TableHead>
                 <TableHead className="hidden sm:table-cell">Questions</TableHead>
+                <TableHead className="hidden sm:table-cell w-28">Permalink</TableHead>
                 <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
@@ -113,6 +115,22 @@ export function QuestionSetTable({ questionSets }: QuestionSetTableProps) {
                     <Badge variant="secondary" className="text-xs">
                       {qs.question_set_items.length}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = `${window.location.origin}/qs/${qs.id}`;
+                        navigator.clipboard.writeText(url).then(() => {
+                          sonnerToast.success("Permalink copied to clipboard");
+                        });
+                      }}
+                      className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      title="Copy permalink"
+                    >
+                      <Link2 className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate max-w-[120px]">/qs/{qs.id.slice(0, 8)}…</span>
+                    </button>
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

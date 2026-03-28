@@ -46,6 +46,7 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith("/register") &&
     !request.nextUrl.pathname.startsWith("/api/auth") &&
     !request.nextUrl.pathname.startsWith("/q/") &&
+    !request.nextUrl.pathname.startsWith("/qs/") &&
     !request.nextUrl.pathname.startsWith("/api/public/")
   ) {
     const url = request.nextUrl.clone();

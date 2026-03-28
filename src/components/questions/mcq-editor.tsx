@@ -8,6 +8,7 @@ import { McqPreview } from "./mcq-preview";
 import { parseMcqMarkdown } from "@/lib/mcq/parser";
 import { validateMcq } from "@/lib/mcq/validator";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 import type { QuestionVisibility } from "@/types/mcq";
 
 const STARTER_TEMPLATE = `---
@@ -130,6 +131,14 @@ export function McqEditor({ initialMarkdown, questionId, initialVisibility = "pr
           </h1>
         </div>
         <div className="flex items-center gap-2">
+          <label className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            {visibility === "public" ? (
+              <Eye className="w-4 h-4" />
+            ) : (
+              <EyeOff className="w-4 h-4" />
+            )}
+            <span>Visibility</span>
+          </label>
           <select
             value={visibility}
             onChange={(e) => setVisibility(e.target.value as QuestionVisibility)}

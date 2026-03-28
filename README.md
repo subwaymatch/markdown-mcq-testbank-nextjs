@@ -48,16 +48,16 @@ chemical energy using chlorophyll.
 
 ### Syntax Rules
 
-| Element | Syntax |
-|---|---|
-| Title | `title:` in YAML frontmatter (required) |
-| Tags | `tags: [tag1, tag2]` in frontmatter (optional) |
-| Question body | Everything before the first `- ` choice line |
-| Incorrect choice | `- Choice text` |
-| Correct choice | `- [o] Choice text` |
+| Element                | Syntax                                                        |
+| ---------------------- | ------------------------------------------------------------- |
+| Title                  | `title:` in YAML frontmatter (required)                       |
+| Tags                   | `tags: [tag1, tag2]` in frontmatter (optional)                |
+| Question body          | Everything before the first `- ` choice line                  |
+| Incorrect choice       | `- Choice text`                                               |
+| Correct choice         | `- [o] Choice text`                                           |
 | Per-choice explanation | `  > Explanation text` (indented blockquote under the choice) |
-| Multi-line choice | Indent continuation lines by 2+ spaces |
-| Overall explanation | Any text after the choices block (no special marker needed) |
+| Multi-line choice      | Indent continuation lines by 2+ spaces                        |
+| Overall explanation    | Any text after the choices block (no special marker needed)   |
 
 ### Notes
 
@@ -129,7 +129,7 @@ Edit `.env.local` and fill in your Supabase project credentials:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your-anon-key
 ```
 
 Find these in your Supabase dashboard under **Project Settings → API**.
@@ -139,6 +139,7 @@ Find these in your Supabase dashboard under **Project Settings → API**.
 In your Supabase dashboard, go to **SQL Editor** and run the contents of [`supabase/schema.sql`](./supabase/schema.sql).
 
 This creates:
+
 - `questions` table with RLS policies
 - `choices` table with RLS policies
 - `updated_at` trigger
@@ -180,13 +181,13 @@ supabase/
 
 The app exposes REST endpoints suitable for future external API consumers.
 
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/api/questions` | List all questions (with choices) |
-| `POST` | `/api/questions` | Create a question |
-| `GET` | `/api/questions/:id` | Get a single question |
-| `PUT` | `/api/questions/:id` | Update a question |
-| `DELETE` | `/api/questions/:id` | Delete a question |
+| Method   | Path                 | Description                       |
+| -------- | -------------------- | --------------------------------- |
+| `GET`    | `/api/questions`     | List all questions (with choices) |
+| `POST`   | `/api/questions`     | Create a question                 |
+| `GET`    | `/api/questions/:id` | Get a single question             |
+| `PUT`    | `/api/questions/:id` | Update a question                 |
+| `DELETE` | `/api/questions/:id` | Delete a question                 |
 
 All routes require authentication (session cookie). Request body for POST/PUT:
 
@@ -211,8 +212,18 @@ All routes require authentication (session cookie). Request body for POST/PUT:
       "tags": ["biology", "plants"],
       "overall_explanation": "Photosynthesis occurs in chloroplasts...",
       "choices": [
-        { "choice_text": "Mitochondria", "is_correct": false, "explanation": "...", "sort_order": 0 },
-        { "choice_text": "Chloroplast",  "is_correct": true,  "explanation": "...", "sort_order": 1 }
+        {
+          "choice_text": "Mitochondria",
+          "is_correct": false,
+          "explanation": "...",
+          "sort_order": 0
+        },
+        {
+          "choice_text": "Chloroplast",
+          "is_correct": true,
+          "explanation": "...",
+          "sort_order": 1
+        }
       ],
       "created_at": "2026-03-26T00:00:00.000Z",
       "updated_at": "2026-03-26T00:00:00.000Z"

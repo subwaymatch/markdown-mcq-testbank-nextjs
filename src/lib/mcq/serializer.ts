@@ -1,4 +1,41 @@
-import type { QuestionWithChoices } from "@/types/mcq";
+import type { ParsedMcq, QuestionWithChoices } from "@/types/mcq";
+
+export function serializeParsedMcqToMarkdown(mcq: ParsedMcq): string {
+  const parts: string[] = [];
+
+  parts.push("---");
+  parts.push(`title: ${mcq.title}`);
+  if (mcq.tags.length > 0) {
+    parts.push(`tags: [${mcq.tags.join(", ")}]`);
+  }
+  parts.push("---");
+  parts.push("");
+
+  if (mcq.questionBody) {
+    parts.push(mcq.questionBody);
+    parts.push("");
+  }
+
+  for (const choice of mcq.choices) {
+    if (choice.isCorrect) {
+      parts.push(`- [o] ${choice.text}`);
+    } else {
+      parts.push(`- ${choice.text}`);
+    }
+    if (choice.explanation) {
+      for (const line of choice.explanation.split("\n")) {
+        parts.push(`  > ${line}`);
+      }
+    }
+  }
+
+  if (mcq.overallExplanation) {
+    parts.push("");
+    parts.push(mcq.overallExplanation);
+  }
+
+  return parts.join("\n") + "\n";
+}
 
 export function serializeToMarkdown(question: QuestionWithChoices): string {
   const parts: string[] = [];

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { parseMcqMarkdown } from "@/lib/mcq/parser";
+import { parseMcqJson } from "@/lib/mcq/json-parser";
+import { serializeParsedMcqToMarkdown } from "@/lib/mcq/serializer";
 import { validateMcq } from "@/lib/mcq/validator";
 import { questionSaveSchema } from "@/lib/validations/question";
 
@@ -67,7 +69,14 @@ export async function PUT(
     );
   }
 
-  const mcq = parseMcqMarkdown(parsed.data.raw_markdown);
+  const isMarkdown = "raw_markdown" in parsed.data;
+  const mcq = isMarkdown
+    ? parseMcqMarkdown(parsed.data.raw_markdown)
+    : parseMcqJson(parsed.data);
+  const rawMarkdown = isMarkdown
+    ? parsed.data.raw_markdown
+    : serializeParsedMcqToMarkdown(mcq);
+
   const validation = validateMcq(mcq);
   if (!validation.valid) {
     return NextResponse.json(
@@ -103,7 +112,7 @@ export async function PUT(
       allow_multiple_answers: mcq.allowMultipleAnswers,
       tags: mcq.tags,
       overall_explanation: mcq.overallExplanation,
-      raw_markdown: parsed.data.raw_markdown,
+      raw_markdown: rawMarkdown,
       visibility: parsed.data.visibility,
     })
     .eq("id", id);
